@@ -6,7 +6,7 @@ const postSchema:Schema = new mongoose.Schema({
     content:String,
     author:{
         type: Schema.Types.ObjectId, 
-        red:'User', 
+        ref:'User', 
         required:true
     },
     createAt: Date

@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+
 import userModel from "../models/user.model"
 import { Request, Response } from "express";
 
@@ -41,11 +41,21 @@ export const updatedUser = async (req:Request,res:Response)=>{
 }
 
 export const deleteUser=async (req:Request,res:Response)=>{
-    const userId = req.params._id
-
-    await userModel.findByIdAndDelete(userId)
-
-    res.json({message: 'Eliminado'})
+    try{
+        const userId = req.params._id
+        const user = await userModel.findById(userId)
+        
+        if(!user){
+            res.json({message:'no existe este usuario'})
+        }
+        
+        await userModel.findByIdAndDelete(userId)
+        
+        res.json({message: 'Eliminado'})
+    }catch{
+        console.log('error');
+        
+    }
 }
 
 
