@@ -3,29 +3,47 @@ import mongoose from 'mongoose'
 import user from './src/routes/users.router'
 import post from './src/routes/post.router'
 import comment from './src/routes/comment.router'
+import { createToken } from './src/utils/jwt'
+
+const cors = require('cors')
+require('dotenv').config()
+const corsOptions = {
+    origin: 'http://localhost:4200'
+  };
+
+
 const app = express()
 
+
+
+
+
+app.use(cors(corsOptions))
 app.use(express.json())
 
 app.use('/thefucasocial',user)
 app.use('/thefucasocial', post)
 app.use('/thefucasocial', comment)
 
-mongoose.connect(
-    'mongodb+srv://FacundoCaamano:LyMXNeB3ETCiOiyu@cluster0.udrqoio.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
-    {
-        dbName:'theFucaSocial'
-    }
-    )
-    
-    mongoose.connection.on('connected', async() =>{
-        console.log('conectado a la base');
-        app.listen(3000, ()=>{
-            console.log('servidor corriendo en 3000');
+const mongo_uri = process.env.MONGO_URI
+if(mongo_uri){    
+    mongoose.connect(
+        mongo_uri,
+        {
+            dbName:'theFucaSocial'
+        }
+        )
+        
+        mongoose.connection.on('connected', async() =>{
+            console.log('conectado a la base');
+            app.listen(3000, ()=>{
+                console.log('servidor corriendo en 3000');
+            })
+            
         })
-    
-})
+    }
 
 mongoose.connection.on('error', (err) => {
     console.error('Mongoose connection error:', err);
+  
   });

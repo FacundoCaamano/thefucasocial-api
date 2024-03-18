@@ -4,7 +4,7 @@ import postModel from "../models/post.model"
 export const getPost = async (req:Request,res:Response)=>{
     try{
         const posts = await postModel.find()
-        res.json({posts})
+        res.json(posts)
     }catch{
         console.log('error');
         
