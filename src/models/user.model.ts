@@ -4,7 +4,7 @@ import { User } from "../interfaces/user.interface";
 const userSchema:Schema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     email: String,
-    password: String,
+    password: {type: String, required: true},
     createdAt: Date
 })
 

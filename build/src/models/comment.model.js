@@ -28,11 +28,11 @@ const commentSchema = new mongoose_1.default.Schema({
     content: String,
     author: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'user',
     },
     post: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'Post',
+        ref: 'post',
     },
     createAt: Date
 });

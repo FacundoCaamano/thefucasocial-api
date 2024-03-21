@@ -17,7 +17,7 @@ const post_model_1 = __importDefault(require("../models/post.model"));
 const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const posts = yield post_model_1.default.find();
-        res.json({ posts });
+        res.json(posts);
     }
     catch (_a) {
         console.log('error');

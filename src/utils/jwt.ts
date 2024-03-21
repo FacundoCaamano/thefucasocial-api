@@ -1,13 +1,35 @@
+import { NextFunction,Request,Response } from "express"
+import jwt from 'jsonwebtoken'
 
-const jwt = require('jsonwebtoken')
+
 
 export function createToken (usario:any){
     const payload={
-        tokenn: usario
+        token: usario
     }
 
-    const secretKey = process.env.SECRET_KEY
-    const token = jwt.sign(payload, secretKey)
-    console.log(token);
+     
+    const token = jwt.sign(payload, process.env.SECRET_KEY as string)
+   
     return token
+}
+
+export const verifyToken = (req:Request,res:Response,next:NextFunction)=>{
+
+    if(!req.headers['authorization']){
+        return res.status(401).json({message:'Debes incluir la cabecera de autorización'})
+    }
+
+    const token = req.headers['authorization']
+
+    let payload
+
+    try{
+        payload = jwt.verify(token, process.env.SECRET_KEY as string)
+    }
+    catch{
+        return res.status(401).json({ message: 'Token inválido' });
+    }
+
+    next()
 }
