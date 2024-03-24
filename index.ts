@@ -3,12 +3,14 @@ import mongoose from 'mongoose'
 import user from './src/routes/users.router'
 import post from './src/routes/post.router'
 import comment from './src/routes/comment.router'
-import { createToken } from './src/utils/jwt'
+
 
 const cors = require('cors')
+const cookieParser = require('cookie-parser') 
 require('dotenv').config()
 const corsOptions = {
-    origin: 'http://localhost:4200'
+    origin: 'http://localhost:4200',
+    credentials: true
   };
 
 
@@ -16,9 +18,9 @@ const app = express()
 
 
 
-
-
 app.use(cors(corsOptions))
+
+app.use(cookieParser())
 app.use(express.json())
 
 app.use('/thefucasocial',user)

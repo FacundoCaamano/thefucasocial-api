@@ -2,7 +2,9 @@
 import userModel from "../models/user.model"
 import { Request, Response } from "express";
 import { comparePassword, hashPassword } from "../utils/encrypt";
-import { createToken } from "../utils/jwt";
+import { createToken, verifyToken } from "../utils/jwt";
+import jwt from 'jsonwebtoken'
+
 
 export const createUser = async (req: Request, res: Response) => {
     try {
@@ -25,34 +27,50 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const login = async (req:Request,res:Response)=>{
-    console.log('llego');
     
+    
+    try{
     const {email, password} = req.body
     
-    const authUser = await userModel.findOne({email})
+    const user = await userModel.findOne({email})
     
+     if(!user){
+         res.status(404).send('Usuario no encontrado')
+     }
+     else{
 
-    if( !authUser || !(comparePassword(password, authUser?.password as string))){
-        return res.status(401).json({message:'credenciales invalidas'})
+         const comparePass = await comparePassword(password, user.password)
+        if(comparePass){
+            const token = createToken(user._id)
+            res.status(200).json(token)
+        }
+        }
+    }catch(err){
+        res.status(500).json({message:'error al loguear', err})
     }
-
-    const userFilterInfo = {
-        _id: authUser._id,
-        name: authUser.name,
-        email: authUser.email,
-        createAt: authUser.createdAt
-    }
-
-    const token = createToken(userFilterInfo)
-
-    res.json(token)
 }
 
-export const getUsers = async (req:Request,res:Response)=>{
+export const authUser = async(req:Request,res:Response)=>{
+    const token = req.headers['authorization']
+    let decoded:any
+    let userId
+    if(token){
+         decoded = jwt.verify(token, process.env.SECRET_KEY as string)
+         userId = decoded.token
+    }
+    const user = await userModel.findOne({_id: userId })
+    if(user){
+        const userFilterData = {
+            name: user?.name,
+            email: user?.email,
+            createdAt: user?.createdAt
+        }
+        res.send(userFilterData)
+    }
+    
+}
 
-    const users = await userModel.find()
-    res.json(users)
-} 
+
 
 export const updatedUser = async (req:Request,res:Response)=>{
     const userId = req.params._id

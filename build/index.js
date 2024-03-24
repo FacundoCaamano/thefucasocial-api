@@ -18,12 +18,15 @@ const users_router_1 = __importDefault(require("./src/routes/users.router"));
 const post_router_1 = __importDefault(require("./src/routes/post.router"));
 const comment_router_1 = __importDefault(require("./src/routes/comment.router"));
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const corsOptions = {
-    origin: 'http://localhost:4200'
+    origin: 'http://localhost:4200',
+    credentials: true
 };
 const app = (0, express_1.default)();
 app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express_1.default.json());
 app.use('/thefucasocial', users_router_1.default);
 app.use('/thefucasocial', post_router_1.default);
