@@ -20,7 +20,8 @@ exports.hashPassword = hashPassword;
 function comparePassword(password, hashedPassword) {
     return __awaiter(this, void 0, void 0, function* () {
         const isValidPassword = yield bcrypt.compare(password, hashedPassword);
-        return isValidPassword;
+        if (isValidPassword)
+            return isValidPassword;
     });
 }
 exports.comparePassword = comparePassword;

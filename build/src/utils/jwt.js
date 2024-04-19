@@ -21,10 +21,10 @@ const verifyToken = (req, res, next) => {
     let payload;
     try {
         payload = jsonwebtoken_1.default.verify(token, process.env.SECRET_KEY);
+        next();
     }
     catch (_a) {
         return res.status(401).json({ message: 'Token inválido' });
     }
-    next();
 };
 exports.verifyToken = verifyToken;

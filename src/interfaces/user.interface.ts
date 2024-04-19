@@ -6,3 +6,6 @@ export interface User {
     createdAt:Date
 }
 
+export interface AuthenticatedUser extends User {
+    _id: string;
+  }
