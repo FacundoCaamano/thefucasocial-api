@@ -12,11 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authUser = exports.deleteUser = exports.updatedUser = exports.logout = exports.loginPassportJwt = exports.login = exports.createUser = void 0;
+exports.deleteUser = exports.updatedUser = exports.logout = exports.profile = exports.login = exports.createUser = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const encrypt_1 = require("../utils/encrypt");
 const jwt_1 = require("../utils/jwt");
-const passport_1 = __importDefault(require("passport"));
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password } = req.body;
@@ -38,42 +37,34 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.createUser = createUser;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { email, password } = req.body;
-        const user = yield user_model_1.default.findOne({ email });
-        if (!user) {
-            res.status(404).send('Usuario no encontrado');
-        }
-        else {
-            const comparePass = yield (0, encrypt_1.comparePassword)(password, user.password);
-            if (comparePass) {
-                const token = (0, jwt_1.createToken)(user._id);
-                res.cookie('tokencookie', token, { httpOnly: true });
-                res.status(200).json(token);
-            }
-        }
+    const { email, password } = req.body;
+    const authUser = yield user_model_1.default.findOne({ email });
+    if (!authUser || !((0, encrypt_1.comparePassword)(password, authUser === null || authUser === void 0 ? void 0 : authUser.password))) {
+        return res.status(401).json({ message: 'credenciales invalidas' });
     }
-    catch (err) {
-        res.status(500).json({ message: 'error al loguear', err });
-    }
+    const userFilterInfo = {
+        _id: authUser._id,
+        name: authUser.name,
+        email: authUser.email,
+        createAt: authUser.createdAt
+    };
+    const token = (0, jwt_1.createToken)(userFilterInfo);
+    res.cookie('tokencookie', token).json(token);
 });
 exports.login = login;
-const loginPassportJwt = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    passport_1.default.authenticate('jwt', { session: false }, (err, user) => {
-        if (err || !user) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
-        req.login(user, { session: false }, (err) => __awaiter(void 0, void 0, void 0, function* () {
-            if (err) {
-                return res.status(500).send(err);
-            }
-            const token = (0, jwt_1.createToken)(user._id);
-            res.cookie('tokencookie', token, { httpOnly: true });
-            return res.json({ token });
-        }));
-    })(req, res);
+const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params._id;
+    try {
+        const user = yield user_model_1.default.find({ _id: userId });
+        if (!user)
+            return res.status(400).json({ message: 'usuario no existente' });
+        if (user)
+            return res.status(200).json(user);
+    }
+    catch (_a) {
+    }
 });
-exports.loginPassportJwt = loginPassportJwt;
+exports.profile = profile;
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.clearCookie('tokencookie');
     res.json({ message: 'deslogueado' });
@@ -100,36 +91,8 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         yield user_model_1.default.findByIdAndDelete(userId);
         res.json({ message: 'Eliminado' });
     }
-    catch (_a) {
+    catch (_b) {
         console.log('error');
     }
 });
 exports.deleteUser = deleteUser;
-const authUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // Verificar si el usuario está autenticado usando Passport
-    if (!req.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-    try {
-        // Obtener el ID de usuario del objeto de usuario autenticado
-        const userId = req.user._id;
-        // Buscar al usuario en la base de datos usando el ID
-        const user = yield user_model_1.default.findById(userId);
-        if (user) {
-            // Filtrar los datos del usuario que deseas enviar al cliente
-            const userFilterData = {
-                name: user.name,
-                email: user.email,
-                createdAt: user.createdAt
-            };
-            return res.json(userFilterData);
-        }
-        else {
-            return res.status(404).json({ message: 'User not found' });
-        }
-    }
-    catch (error) {
-        return res.status(500).json({ message: 'Internal Server Error', error });
-    }
-});
-exports.authUser = authUser;

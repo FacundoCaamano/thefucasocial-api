@@ -3,13 +3,8 @@ import jwt from 'jsonwebtoken'
 import userModel from "../models/user.model";
 
 
-export function createToken (usario:any){
-    const payload={
-        token: usario
-    }
-
-     
-    const token = jwt.sign(payload, process.env.SECRET_KEY as string)
+export function createToken (usario:any){  
+    const token = jwt.sign(usario, process.env.SECRET_KEY as string)
    
     return token
 }

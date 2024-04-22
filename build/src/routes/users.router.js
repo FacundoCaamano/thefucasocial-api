@@ -9,7 +9,7 @@ const passport_1 = __importDefault(require("passport"));
 const router = express_1.default.Router();
 router.post('/create-user', user_controllers_1.createUser);
 router.post('/login', user_controllers_1.login);
-router.get('/auth-check', passport_1.default.authenticate('jwt', { session: false }), user_controllers_1.authUser);
+router.get('/profile/:_id', passport_1.default.authenticate("jwt", { session: false }), user_controllers_1.profile);
 router.put('/edit-user/:_id', user_controllers_1.updatedUser);
 router.delete('/delete-user/:_id', user_controllers_1.deleteUser);
 router.get('/logout', user_controllers_1.logout);

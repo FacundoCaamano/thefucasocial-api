@@ -6,10 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = exports.createToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 function createToken(usario) {
-    const payload = {
-        token: usario
-    };
-    const token = jsonwebtoken_1.default.sign(payload, process.env.SECRET_KEY);
+    const token = jsonwebtoken_1.default.sign(usario, process.env.SECRET_KEY);
     return token;
 }
 exports.createToken = createToken;

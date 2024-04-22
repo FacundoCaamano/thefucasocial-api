@@ -1,7 +1,9 @@
 
 import userModel from "../models/user.model"
 import { Request, Response } from "express";
-import { hashPassword } from "../utils/encrypt";
+import { comparePassword, hashPassword } from "../utils/encrypt";
+import { createToken } from "../utils/jwt";
+import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken'
 import passport from "passport";
 import { AuthenticatedUser } from "../interfaces/user.interface";
@@ -27,10 +29,38 @@ export const createUser = async (req: Request, res: Response) => {
     }
 };
 
-export const login = async (req: Request, res: Response) => {
-   
+export const login = async (req: Request, res: Response) => {    
+    const {email, password} = req.body
+    
+    const authUser = await userModel.findOne({email})
+    
+
+    if( !authUser || !(comparePassword(password, authUser?.password as string))){
+        return res.status(401).json({message:'credenciales invalidas'})
+    }
+
+    const userFilterInfo = {
+        _id: authUser._id,
+        name: authUser.name,
+        email: authUser.email,
+        createAt: authUser.createdAt
+    }
+
+    const token = createToken(userFilterInfo)
+
+    res.cookie('tokencookie',token).json(token)
   };
 
+export const profile = async(req:Request,res:Response)=>{
+    const userId = req.params._id
+    try{
+        const user = await userModel.find({_id: userId})
+        if(!user) return res.status(400).json({message:'usuario no existente'})
+        if(user) return  res.status(200).json(user)
+    }catch{
+
+    }
+}
 
 
 export const logout = async(req:Request,res:Response)=>{

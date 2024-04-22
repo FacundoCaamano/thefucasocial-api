@@ -19,8 +19,6 @@ const post_router_1 = __importDefault(require("./src/routes/post.router"));
 const comment_router_1 = __importDefault(require("./src/routes/comment.router"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const passport_1 = __importDefault(require("passport"));
-const passport_config_1 = __importDefault(require("./src/config/passport.config"));
-//import initializePassport from './src/config/passport.config'
 const cors = require('cors');
 require('dotenv').config();
 const corsOptions = {
@@ -31,8 +29,7 @@ const app = (0, express_1.default)();
 app.use(cors(corsOptions));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
-(0, passport_config_1.default)();
-app.use(passport_1.default.initialize);
+app.use(passport_1.default.initialize());
 app.use('/thefucasocial', users_router_1.default);
 app.use('/thefucasocial', post_router_1.default);
 app.use('/thefucasocial', comment_router_1.default);

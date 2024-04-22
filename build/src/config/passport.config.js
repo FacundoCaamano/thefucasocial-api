@@ -12,28 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_model_1 = __importDefault(require("../models/user.model"));
-const passport_jwt_1 = __importDefault(require("passport-jwt"));
+const passport_jwt_1 = require("passport-jwt");
 const passport_1 = __importDefault(require("passport"));
-const jwtStrategy = passport_jwt_1.default.Strategy;
-const extractJwt = passport_jwt_1.default.ExtractJwt.fromAuthHeaderAsBearerToken();
-const initializePassport = () => {
-    passport_1.default.use('jwt', new jwtStrategy({
-        jwtFromRequest: extractJwt,
-        secretOrKey: process.env.SECRET_KEY
-    }, (jwtPayload, done) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const user = yield user_model_1.default.findById(jwtPayload.sub);
-            if (user) {
-                return done(null, user);
-            }
-            else {
-                return done(null, false);
-            }
-        }
-        catch (error) {
-            return done(error, false);
-        }
-    })));
+const user_model_1 = __importDefault(require("../models/user.model"));
+const opts = {
+    jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: "jdf93jfy39dhwl",
 };
-exports.default = initializePassport;
+passport_1.default.use(new passport_jwt_1.Strategy(opts, (payload, done) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield user_model_1.default.findById(payload._id);
+        if (user)
+            return done(null, user);
+        else
+            return done(null, false);
+    }
+    catch (error) {
+        return done(error);
+    }
+})));

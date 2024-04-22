@@ -6,7 +6,7 @@ import comment from './src/routes/comment.router'
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import initializePassport from './src/config/passport.config'
-//import initializePassport from './src/config/passport.config'
+
 
 
 const cors = require('cors')
@@ -21,13 +21,12 @@ const corsOptions = {
 const app = express()
 
 
-
 app.use(cors(corsOptions))
 
 app.use(cookieParser())
 app.use(express.json())
-initializePassport()
 app.use(passport.initialize())
+initializePassport()
 app.use('/thefucasocial',user)
 app.use('/thefucasocial', post)
 app.use('/thefucasocial', comment)

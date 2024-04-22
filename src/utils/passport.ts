@@ -1,19 +1,19 @@
-import { NextFunction,Request,Response } from "express"
-import passport from "passport"
-import { User } from "../interfaces/user.interface"
+// import { NextFunction,Request,Response } from "express"
+// import passport from "passport"
+// import { User } from "../interfaces/user.interface"
 
-export const passportCall = (strategy:any) =>{
-    return async(req:Request,res:Response,next:NextFunction)=>{
-        passport.authenticate(strategy, function(err:Error, user:any, info:any){
-            if(err) return next(err)
-                if(!user){
-                    return res.status(401).send({error: info.messages ? info.messages : info.toString()})
-                }
-                req.user = user
-                next()
-        })(req,res,next)
-    }
-}
+// export const passportCall = (strategy:any) =>{
+//     return async(req:Request,res:Response,next:NextFunction)=>{
+//         passport.authenticate(strategy, function(err:Error, user:any, info:any){
+//             if(err) return next(err)
+//                 if(!user){
+//                     return res.status(401).send({error: info.messages ? info.messages : info.toString()})
+//                 }
+//                 req.user = user
+//                 next()
+//         })(req,res,next)
+//     }
+// }
 
 // export const authorization = (role:any) =>{
 //     return async(req:Request, res:Response, next:NextFunction)=>{
