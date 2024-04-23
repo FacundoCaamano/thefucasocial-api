@@ -1,23 +1,78 @@
 import { ExtractJwt, Strategy } from "passport-jwt";
 import passport from "passport";
 import userModel from "../models/user.model";
+import local from "passport-local"
+import { comparePassword, hashPassword } from "../utils/encrypt";
+import { createToken, extractCookie } from "../utils/jwt";
 
-const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: "jdf93jfy39dhwl",
-};
+const LocalStrategy = local.Strategy
+const JWTStrategy = Strategy
+const extractJwt = ExtractJwt
+
+
 
 const initializePassport =()=>{
-  passport.use(
-    new Strategy(opts, async (payload, done) => {
-      try {
-        const user = await userModel.findById(payload._id);
-        if (user) return done(null, user); 
-        else return done(null, false);
-      } catch (error) {
-        return done(error);
-      }
-    })
-  );
+
+  passport.use('register', new LocalStrategy({
+    passReqToCallback: true,
+    usernameField: 'email'
+  } ,async(req, username, password,done)=>{
+    try {
+        const { name, email} = req.body;
+        // Crear un nuevo usuario
+        const passwordHash = await hashPassword(password)
+
+        const newUser = new userModel({
+            name,
+            email,
+            password: passwordHash,
+            createdAt: new Date()
+        });
+        // Guardar el nuevo usuario en la base de datos
+        const savedUser = await newUser.save();
+        return done(null, savedUser)
+    } catch (error) {
+      return done("[LOCAL] error al registrar" + error)   
+    }
+}))
+
+passport.use('login', new LocalStrategy({
+  usernameField:'email'
+},async (username, password, done)=>{
+  try{
+    let user = await userModel.findOne({email: username})
+    if(!user){
+      console.log('usuario no encontrado');
+      return done(null, false)
+    }
+    if( !user || !(comparePassword(password, user?.password as string))){
+        return done(null, false)
+    }
+    const token = createToken(user)
+   
+    
+    return done(null, user)
+  }catch(err){
+    console.log('cuack',err);
+    
+  }
+}))
+
+passport.use('jwt', new JWTStrategy({
+  jwtFromRequest: ExtractJwt.fromExtractors([extractCookie]),
+  secretOrKey: 'jdf93jfy39dhwl'
+},async(jwt_payload, done)=>{
+  done(null, jwt_payload)
+}))
+
+passport.serializeUser((user:any, done)=>{
+  done(null, user._id)
+})
+
+passport.deserializeUser(async (id,done)=>{
+  const user = await userModel.findById(id)
+  done(null, user)
+})
+ 
 }
 export default initializePassport
