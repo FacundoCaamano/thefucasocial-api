@@ -12,26 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePost = exports.createPost = exports.getPost = void 0;
+exports.dislike = exports.like = exports.deletePost = exports.createPost = exports.getPost = void 0;
 const post_model_1 = __importDefault(require("../models/post.model"));
 const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const posts = yield post_model_1.default.find();
+        const posts = yield post_model_1.default.find().sort({ createdAt: -1 });
         res.json(posts);
     }
-    catch (_a) {
-        console.log('error');
+    catch (err) {
+        console.log(err);
     }
 });
 exports.getPost = getPost;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { content } = req.body;
-        const author = req.params._id;
+        const { content, authorName } = req.body;
+        const authorId = req.params._id;
         const newPost = {
             content,
-            author,
-            createAt: new Date()
+            authorId,
+            authorName,
+            createdAt: new Date()
         };
         yield post_model_1.default.create(newPost);
         res.json('creado');
@@ -56,3 +57,57 @@ const deletePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deletePost = deletePost;
+const like = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const postId = req.params.postId;
+        const post = yield post_model_1.default.findById(postId);
+        const userId = req.params.userId;
+        if (!post) {
+            return res.status(404).json({ message: ' no se econtro el post' });
+        }
+        if ((_a = post.likes) === null || _a === void 0 ? void 0 : _a.includes(userId)) {
+            post.likes.pull(userId);
+        }
+        else {
+            post.likes.push(userId);
+        }
+        if (post.dislikes.includes(userId)) {
+            post.dislikes.pull(userId);
+        }
+        yield post.save();
+        res.json({ message: 'Like actualizado' });
+    }
+    catch (error) {
+        console.log({ message: 'Error al actualizar like', error });
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
+exports.like = like;
+const dislike = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    try {
+        const postId = req.params.postId;
+        const post = yield post_model_1.default.findById(postId);
+        const userId = req.params.userId;
+        if (!post) {
+            return res.status(404).json({ message: ' no se econtro el post' });
+        }
+        if ((_b = post.likes) === null || _b === void 0 ? void 0 : _b.includes(userId)) {
+            post.likes.pull(userId);
+        }
+        else {
+            post.likes.push(userId);
+        }
+        if (post.dislikes.includes(userId)) {
+            post.dislikes.pull(userId);
+        }
+        yield post.save();
+        res.json({ message: 'Like actualizado' });
+    }
+    catch (error) {
+        console.log({ message: 'Error al actualizar like', error });
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
+exports.dislike = dislike;

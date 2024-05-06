@@ -48,19 +48,24 @@ passport.use('login', new LocalStrategy({
     if( !user || !(comparePassword(password, user?.password as string))){
         return done(null, false)
     }
-    const token = createToken(user)
+    const userFilterData ={
+      _id:user._id,
+      name: user.name,
+      email:user.email,
+      createdAt: user.createdAt
+    }
+    const token = createToken(userFilterData)
    
     
-    return done(null, user)
+    return done(null, userFilterData)
   }catch(err){
-    console.log('cuack',err);
-    
+    console.log(err);
   }
 }))
 
 passport.use('jwt', new JWTStrategy({
   jwtFromRequest: ExtractJwt.fromExtractors([extractCookie]),
-  secretOrKey: 'jdf93jfy39dhwl'
+  secretOrKey: process.env.SECRET_KEY as string 
 },async(jwt_payload, done)=>{
   done(null, jwt_payload)
 }))

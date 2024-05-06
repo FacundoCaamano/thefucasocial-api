@@ -12,44 +12,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updatedUser = exports.logout = exports.profile = exports.login = exports.createUser = void 0;
+exports.deleteUser = exports.updatedUser = exports.logout = exports.profile = exports.login = exports.register = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
-const encrypt_1 = require("../utils/encrypt");
 const jwt_1 = require("../utils/jwt");
-const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { name, email, password } = req.body;
-        // Crear un nuevo usuario
-        const passwordHash = yield (0, encrypt_1.hashPassword)(password);
-        const newUser = new user_model_1.default({
-            name,
-            email,
-            password: passwordHash,
-            createdAt: new Date()
-        });
-        // Guardar el nuevo usuario en la base de datos
-        const savedUser = yield newUser.save();
-        res.status(201).json(savedUser);
-    }
-    catch (error) {
-        res.status(500).json({ message: 'Error al crear usuario', error });
-    }
+const passport_1 = __importDefault(require("passport"));
+const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    passport_1.default.authenticate('register', (err, user, info) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error en el registro' });
+        }
+        if (!user) {
+            return res.status(400).json({ error: info.message });
+        }
+        return res.status(200).json({ message: 'Registro exitoso', user });
+    })(req, res, next);
 });
-exports.createUser = createUser;
-const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = req.body;
-    const authUser = yield user_model_1.default.findOne({ email });
-    if (!authUser || !((0, encrypt_1.comparePassword)(password, authUser === null || authUser === void 0 ? void 0 : authUser.password))) {
-        return res.status(401).json({ message: 'credenciales invalidas' });
-    }
-    const userFilterInfo = {
-        _id: authUser._id,
-        name: authUser.name,
-        email: authUser.email,
-        createAt: authUser.createdAt
-    };
-    const token = (0, jwt_1.createToken)(userFilterInfo);
-    res.cookie('tokencookie', token).json(token);
+exports.register = register;
+const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    passport_1.default.authenticate('login', (err, user, info) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error en el inicio de sesión' });
+        }
+        if (!user) {
+            return res.status(401).json({ error: 'Credenciales incorrectas' });
+        }
+        const token = (0, jwt_1.createToken)(user);
+        res.cookie('token', token, { httpOnly: true });
+        return res.status(200).json(user);
+    })(req, res, next);
 });
 exports.login = login;
 const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -66,7 +56,7 @@ const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.profile = profile;
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie('tokencookie');
+    res.clearCookie('token');
     res.json({ message: 'deslogueado' });
 });
 exports.logout = logout;

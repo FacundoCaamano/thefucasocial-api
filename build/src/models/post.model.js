@@ -26,12 +26,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const postSchema = new mongoose_1.default.Schema({
     content: String,
-    author: {
+    authorId: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'User',
         required: true
     },
-    createAt: Date
+    authorName: String,
+    createdAt: Date,
+    likes: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
+    dislikes: [{
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'User'
+        }]
 });
 const postModel = mongoose_1.default.model('Post', postSchema);
 exports.default = postModel;

@@ -1,17 +1,30 @@
 import mongoose, { Schema } from "mongoose";
-import userModel from "./user.model";
-import { User } from "../interfaces/user.interface";
 import { Post } from "../interfaces/post.interfaces";
 const postSchema:Schema = new mongoose.Schema({
     content:String,
-    author:{
+    authorId:{
         type: Schema.Types.ObjectId, 
-        ref:'user', 
+        ref: 'User', 
         required:true
     },
-    createAt: Date
+    authorName:String,
+    createdAt: Date,
+    likes:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
+    dislikes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }]
+
 })
 
-const postModel = mongoose.model<Post>('Post', postSchema)
 
+
+
+
+const postModel = mongoose.model<Post>('Post', postSchema)
 export default postModel

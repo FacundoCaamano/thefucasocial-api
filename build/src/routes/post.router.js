@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const post_controllers_1 = require("../controllers/post.controllers");
-const jwt_1 = require("../utils/jwt");
 const router = express_1.default.Router();
 router.get('/posts', post_controllers_1.getPost);
-router.post('/create-post/:_id', jwt_1.verifyToken, post_controllers_1.createPost);
+router.post('/create-post/:_id', post_controllers_1.createPost);
 router.delete('/delete-post/:_id', post_controllers_1.deletePost);
+router.post('/like/:postId/:userId', post_controllers_1.like);
 exports.default = router;

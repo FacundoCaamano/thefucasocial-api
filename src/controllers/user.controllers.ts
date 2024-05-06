@@ -1,54 +1,37 @@
 
 import userModel from "../models/user.model"
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { comparePassword, hashPassword } from "../utils/encrypt";
 import { createToken } from "../utils/jwt";
-import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken'
 import passport from "passport";
-import { AuthenticatedUser } from "../interfaces/user.interface";
 
 
-export const createUser = async (req: Request, res: Response) => {
-    try {
-        const { name, email, password } = req.body;
-        // Crear un nuevo usuario
-        const passwordHash = await hashPassword(password)
-
-        const newUser = new userModel({
-            name,
-            email,
-            password: passwordHash,
-            createdAt: new Date()
-        });
-        // Guardar el nuevo usuario en la base de datos
-        const savedUser = await newUser.save();
-        res.status(201).json(savedUser);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al crear usuario', error });
-    }
+export const register = async (req: Request, res: Response, next:NextFunction) => {
+    passport.authenticate('register', (err:any, user:any, info:any) => {
+        if (err) {
+          return res.status(500).json({ error: 'Error en el registro' });
+        }
+        if (!user) {
+          return res.status(400).json({ error: info.message });
+        }
+        return res.status(200).json({ message: 'Registro exitoso', user });
+      })(req, res, next);
 };
 
-export const login = async (req: Request, res: Response) => {    
-    const {email, password} = req.body
-    
-    const authUser = await userModel.findOne({email})
-    
-
-    if( !authUser || !(comparePassword(password, authUser?.password as string))){
-        return res.status(401).json({message:'credenciales invalidas'})
-    }
-
-    const userFilterInfo = {
-        _id: authUser._id,
-        name: authUser.name,
-        email: authUser.email,
-        createAt: authUser.createdAt
-    }
-
-    const token = createToken(userFilterInfo)
-
-    res.cookie('tokencookie',token).json(token)
+export const login = async (req: Request, res: Response, next: NextFunction) => {    
+    passport.authenticate('login', (err:any, user:any, info:any) => {
+        if (err) {
+          return res.status(500).json({ error: 'Error en el inicio de sesión' });
+        }
+        if (!user) {
+          return res.status(401).json({ error: 'Credenciales incorrectas' });
+        }
+        const token = createToken(user);
+  
+      
+      res.cookie('token', token ,{httpOnly:true});
+        return res.status(200).json( user);
+      })(req, res, next);
   };
 
 export const profile = async(req:Request,res:Response)=>{
@@ -64,7 +47,7 @@ export const profile = async(req:Request,res:Response)=>{
 
 
 export const logout = async(req:Request,res:Response)=>{
-    res.clearCookie('tokencookie')
+    res.clearCookie('token')
     res.json({message:'deslogueado'})    
 }
 

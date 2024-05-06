@@ -9,9 +9,9 @@ import initializePassport from './src/config/passport.config'
 
 
 
+require('dotenv').config()
 const cors = require('cors')
 
-require('dotenv').config()
 const corsOptions = {
     origin: 'http://localhost:4200',
     credentials: true
