@@ -9,7 +9,7 @@ export function createToken(usuario:any){
     const payload = {
         usuario
     }
-    const token = jwt.sign(payload, process.env.SECRET_KEY as string)
+    const token = jwt.sign(payload, process.env.SECRET_KEY as string,{expiresIn:'7d'})
    
     return token
 }
@@ -42,7 +42,7 @@ export const passportCall = (strategy:any)=>{
     return async(req:Request,res:Response,next:NextFunction)=>{
         passport.authenticate(strategy, function(err:any,user:any,info:any){
             if(err) return next(err)
-            if(!user) return next()
+            if(!user) return res.status(401).send('Usuario no autenticado')
             req.user = user    
             next()
         })(req,res,next)

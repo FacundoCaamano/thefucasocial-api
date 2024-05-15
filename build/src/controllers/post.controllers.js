@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dislike = exports.like = exports.deletePost = exports.createPost = exports.getPost = void 0;
+exports.dislike = exports.like = exports.deletePost = exports.createPost = exports.getPostsById = exports.getPost = void 0;
 const post_model_1 = __importDefault(require("../models/post.model"));
 const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -24,6 +24,17 @@ const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getPost = getPost;
+const getPostsById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.params.userId;
+        const posts = yield post_model_1.default.find({ authorId: userId });
+        res.json(posts);
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+exports.getPostsById = getPostsById;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { content, authorName } = req.body;
@@ -34,8 +45,8 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             authorName,
             createdAt: new Date()
         };
-        yield post_model_1.default.create(newPost);
-        res.json('creado');
+        const postCreate = yield post_model_1.default.create(newPost);
+        res.json(postCreate);
     }
     catch (error) {
         console.log('error', error);
@@ -44,12 +55,15 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.createPost = createPost;
 const deletePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const postId = req.params._id;
+        const postId = req.params.postId;
+        const userId = req.params.userId;
         const post = yield post_model_1.default.findById(postId);
         if (!post) {
             res.json({ message: 'no se encontro el post' });
         }
-        yield post_model_1.default.deleteOne({ '_id': postId });
+        if ((post === null || post === void 0 ? void 0 : post.authorId) == userId) {
+            yield post_model_1.default.deleteOne({ '_id': postId });
+        }
         res.json({ message: 'eliminado' });
     }
     catch (error) {
@@ -93,14 +107,14 @@ const dislike = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!post) {
             return res.status(404).json({ message: ' no se econtro el post' });
         }
-        if ((_b = post.likes) === null || _b === void 0 ? void 0 : _b.includes(userId)) {
-            post.likes.pull(userId);
+        if ((_b = post.dislikes) === null || _b === void 0 ? void 0 : _b.includes(userId)) {
+            post.dislikes.pull(userId);
         }
         else {
-            post.likes.push(userId);
+            post.dislikes.push(userId);
         }
-        if (post.dislikes.includes(userId)) {
-            post.dislikes.pull(userId);
+        if (post.likes.includes(userId)) {
+            post.likes.pull(userId);
         }
         yield post.save();
         res.json({ message: 'Like actualizado' });

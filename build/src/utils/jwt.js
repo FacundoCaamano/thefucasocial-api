@@ -20,7 +20,7 @@ function createToken(usuario) {
     const payload = {
         usuario
     };
-    const token = jsonwebtoken_1.default.sign(payload, process.env.SECRET_KEY);
+    const token = jsonwebtoken_1.default.sign(payload, process.env.SECRET_KEY, { expiresIn: '7d' });
     return token;
 }
 exports.createToken = createToken;

@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import postModel from "../models/post.model"
 import { Post } from "../interfaces/post.interfaces"
+import { use } from "passport"
 
 export const getPost = async (req:Request,res:Response)=>{
     try{
@@ -9,6 +10,17 @@ export const getPost = async (req:Request,res:Response)=>{
     }catch(err){
         console.log(err);
         
+    }
+}
+
+export const getPostsById = async(req:Request,res:Response)=>{
+    try{
+        const userId = req.params.userId
+        const posts = await postModel.find({authorId: userId})
+
+        res.json(posts)
+    }catch(err){
+        console.log(err);   
     }
 }
 
@@ -24,9 +36,9 @@ export const createPost = async (req:Request,res:Response) =>{
             createdAt: new Date()
         }
         
-        await postModel.create(newPost)
+        const postCreate = await postModel.create(newPost)
         
-        res.json('creado')
+        res.json(postCreate)
     }catch(error){
         console.log('error',error);
         
@@ -35,14 +47,17 @@ export const createPost = async (req:Request,res:Response) =>{
 
 export const deletePost = async (req:Request,res:Response) =>{
     try{
-        const postId  = req.params._id
+        const postId  = req.params.postId
+        const userId = req.params.userId
         const post = await postModel.findById(postId)
       
         if(!post){
             res.json({message:'no se encontro el post'})
         }
 
-        await postModel.deleteOne({'_id':postId})
+        if(post?.authorId == userId){   
+            await postModel.deleteOne({'_id':postId})
+        }
  
         res.json({message:'eliminado'})
     }catch(error){

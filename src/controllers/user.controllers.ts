@@ -1,7 +1,6 @@
 
 import userModel from "../models/user.model"
 import { NextFunction, Request, Response } from "express";
-import { comparePassword, hashPassword } from "../utils/encrypt";
 import { createToken } from "../utils/jwt";
 import passport from "passport";
 

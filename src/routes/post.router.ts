@@ -1,12 +1,13 @@
 import express from 'express'
-import { createPost, deletePost, dislike, getPost, like } from '../controllers/post.controllers'
-import { verifyToken } from '../utils/jwt'
+import { createPost, deletePost, dislike, getPost, getPostsById, like } from '../controllers/post.controllers'
+import { passportCall } from '../utils/jwt'
 
 const router = express.Router()
 
 router.get('/posts', getPost)
-router.post('/create-post/:_id', createPost)
-router.delete('/delete-post/:_id', deletePost)
+router.get('/postsbyid/:userId', getPostsById)
+router.post('/create-post/:_id', passportCall('jwt'),createPost)
+router.delete('/delete-post/:postId/:userId',passportCall('jwt'),deletePost)
 router.post('/like/:postId/:userId',like)
 router.post('/dislike/:postId/:userId',dislike)
 export default router
