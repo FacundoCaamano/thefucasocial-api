@@ -1,7 +1,8 @@
 import { Request, Response } from "express"
 import postModel from "../models/post.model"
-import { Post } from "../interfaces/post.interfaces"
-import { use } from "passport"
+
+
+
 
 export const getPost = async (req:Request,res:Response)=>{
     try{
@@ -12,6 +13,33 @@ export const getPost = async (req:Request,res:Response)=>{
         
     }
 }
+
+export const editPost = async (req:Request,res:Response)=>{
+    try{
+        const postId = req.params.postId
+        const user = req.params.userId
+        const content = req.body.content
+        
+        const post = await postModel.findById(postId)
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+        if (post.authorId.toString() !== user) {
+            return res.status(403).json({ error: "User not authorized to edit this post" });
+        }
+        if(post){
+            post.content = content
+            post.edit = true
+            await post.save()
+            return res.status(200).json(post)
+        }
+    }catch(error){
+        console.error("Error editing post:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+
+}
+
 
 export const getPostsById = async(req:Request,res:Response)=>{
     try{

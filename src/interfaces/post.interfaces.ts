@@ -7,5 +7,6 @@ export interface Post {
     authorName: User['name']
     likes: User['_id'][];
     dislikes: User['_id'][];
-    createdAt:Date
+    createdAt:Date,
+    edit:boolean
 }

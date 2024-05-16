@@ -18,7 +18,11 @@ const postSchema:Schema = new mongoose.Schema({
     dislikes: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }]
+    }],
+    edit:{
+        type:Boolean,
+        default:false
+    }
 
 })
 
