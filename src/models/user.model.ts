@@ -5,7 +5,17 @@ const userSchema:Schema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     email: String,
     password: {type: String, required: true},
-    createdAt: Date
+    createdAt: Date,
+    friends:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    }],
+    friendsRequest:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'User'
+        }
+    ]
 })
 
 const userModel = mongoose.model<User>("User", userSchema)

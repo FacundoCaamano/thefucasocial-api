@@ -70,14 +70,14 @@ passport.use('jwt', new JWTStrategy({
   done(null, jwt_payload)
 }))
 
-passport.serializeUser((user:any, done)=>{
-  done(null, user._id)
-})
+// passport.serializeUser((user:any, done)=>{
+//   done(null, user._id)
+// })
 
-passport.deserializeUser(async (id,done)=>{
-  const user = await userModel.findById(id)
-  done(null, user)
-})
+// passport.deserializeUser(async (id,done)=>{
+//   const user = await userModel.findById(id)
+//   done(null, user)
+// })
  
 }
 export default initializePassport

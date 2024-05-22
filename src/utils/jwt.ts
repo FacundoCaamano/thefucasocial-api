@@ -9,7 +9,7 @@ export function createToken(usuario:any){
     const payload = {
         usuario
     }
-    const token = jwt.sign(payload, process.env.SECRET_KEY as string,{expiresIn:'7d'})
+    const token = jwt.sign(payload, process.env.SECRET_KEY as string)
    
     return token
 }

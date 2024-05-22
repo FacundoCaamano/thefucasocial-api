@@ -5,6 +5,7 @@ import { createToken } from "../utils/jwt";
 import passport from "passport";
 
 
+
 export const register = async (req: Request, res: Response, next:NextFunction) => {
     passport.authenticate('register', (err:any, user:any, info:any) => {
         if (err) {
@@ -84,7 +85,5 @@ export const deleteUser = async (req: Request, res: Response) => {
         
     }
 }
-
-
 
 

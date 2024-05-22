@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import user from './src/routes/users.router'
 import post from './src/routes/post.router'
 import comment from './src/routes/comment.router'
+import friends from './src/routes/friends.router'
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import initializePassport from './src/config/passport.config'
@@ -30,6 +31,7 @@ initializePassport()
 app.use('/thefucasocial',user)
 app.use('/thefucasocial', post)
 app.use('/thefucasocial', comment)
+app.use('/thefucasocial', friends)
 
 
 const mongo_uri = process.env.MONGO_URI

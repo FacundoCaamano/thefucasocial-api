@@ -4,7 +4,9 @@ export interface User {
     email:string,
     token:string,
     password: string,
-    createdAt:Date
+    createdAt:Date,
+    friends:Array<string>,
+    friendsRequest:Array<string>
 }
 
 export interface AuthenticatedUser extends User {
