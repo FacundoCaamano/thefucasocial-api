@@ -7,8 +7,8 @@ import friends from './src/routes/friends.router'
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import initializePassport from './src/config/passport.config'
-
-
+import { Server } from 'socket.io'
+import http from 'http'
 
 require('dotenv').config()
 const cors = require('cors')
@@ -20,7 +20,8 @@ const corsOptions = {
 
 
 const app = express()
-
+const server = http.createServer(app)
+const io = new Server(server)
 
 app.use(cors(corsOptions))
 
@@ -31,7 +32,10 @@ initializePassport()
 app.use('/thefucasocial',user)
 app.use('/thefucasocial', post)
 app.use('/thefucasocial', comment)
-app.use('/thefucasocial', friends)
+app.use('/thefucasocial',(req:any,res,next)=>{
+    req.io = io
+    next()
+} ,friends)
 
 
 const mongo_uri = process.env.MONGO_URI
@@ -49,6 +53,15 @@ if(mongo_uri){
                 console.log('servidor corriendo en 3000');
             })
             
+        })
+
+        io.on('connection',(socket)=>{
+            console.log('usuario conectado');
+
+            socket.on('disconnect',()=>{
+                console.log(' usuario desconectado');
+                
+            })
         })
     }
 

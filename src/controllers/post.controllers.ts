@@ -119,7 +119,7 @@ export const like = async (req:Request,res:Response)=>{
         
         await post.save();
         
-        res.json({ message: 'Like actualizado' });
+        res.json(post);
     }catch(error){
         console.log({ message: 'Error al actualizar like', error });
         res.status(500).json({ message: 'Error interno del servidor' });
@@ -149,9 +149,9 @@ export const like = async (req:Request,res:Response)=>{
                 post.likes.pull(userId);
             }
             
-            await post.save();
+            const postsEdited = await post.save();
             
-            res.json({ message: 'Like actualizado' });
+            res.json(postsEdited);
         }catch(error){
             console.log({ message: 'Error al actualizar like', error });
             res.status(500).json({ message: 'Error interno del servidor' });
