@@ -1,7 +1,7 @@
-import { User } from "../interfaces/user.interface"
 import userModel from "../models/user.model"
 import { Request, Response } from "express"
-
+import { io, users } from "../.."
+import mongoose from "mongoose"
 export const getFriends = async (req: Request, res: Response) => {
   const userId = req.params._id
   const user = await userModel.findById(userId)
@@ -56,33 +56,40 @@ export const getFriendsRequest = async (req: Request, res: Response) => {
   }
 }
 
-export const sendFriendRequest = async (req: Request, res: Response, io:any) => {
-  const userId = req.body.userId
-  const friendId = req.body.friendId
-
+export const sendFriendRequest = async (req: Request, res: Response) => {
+  const userId = req.body.userId;
+  const friendId = req.body.friendId;
 
   try {
-    const user = await userModel.findById(userId)
-    const friend = await userModel.findById(friendId)
+      const user = await userModel.findById(userId);
+      const friend = await userModel.findById(friendId);
 
-    if (!friend || !user) {
-      res.status(404).json({ message: 'no encontrado' })
-    }
-     if(friend?.friendsRequest.includes(userId)){
-       res.status(400).json({message:'solicitud ya enviada'})
-     }
-    else {
-      friend?.friendsRequest.push(userId)
-      await friend?.save()
-      io.to(friendId).emit('friendRequest', { userId, name: user?.name });
-      res.status(200).json({ message: "solicitud enviada" })
-    }
+      if (!friend || !user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(friendId)) {
+        return res.status(400).json({ message: 'Invalid User ID or Friend ID' });
+      }
+      if (friend.friendsRequest.includes(userId)) {
+          return res.status(400).json({ message: 'Request already sent' });
+      }
 
+      friend.friendsRequest.push(userId);
+      await friend.save();
+
+      
+      const friendSocketId = users.get(friendId); // Asegúrate de tener acceso al mapa de usuarios
+      
+      
+    if (friendSocketId) {
+      io.to(friendSocketId).emit('friendRequestReceived',  userId );
+    }
+      res.status(200).json({ message: 'Friend request sent' });
   } catch (err) {
-    res.status(500).json({ message: 'error', err })
+      console.error('Error in sendFriendRequest:', err);
+      res.status(500).json({ message: 'Server error', err });
   }
-}
-
+};
 
 export const acceptFriendRequest = async (req: Request, res: Response) => {
   const userId = req.body.userId
