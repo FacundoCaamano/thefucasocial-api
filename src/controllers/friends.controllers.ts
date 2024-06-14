@@ -1,6 +1,5 @@
 import userModel from "../models/user.model"
 import { Request, Response } from "express"
-import { io, users } from "../.."
 import mongoose from "mongoose"
 export const getFriends = async (req: Request, res: Response) => {
   const userId = req.params._id
@@ -76,14 +75,6 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
 
       friend.friendsRequest.push(userId);
       await friend.save();
-
-      
-      const friendSocketId = users.get(friendId); // Asegúrate de tener acceso al mapa de usuarios
-      
-      
-    if (friendSocketId) {
-      io.to(friendSocketId).emit('friendRequestReceived',  userId );
-    }
       res.status(200).json({ message: 'Friend request sent' });
   } catch (err) {
       console.error('Error in sendFriendRequest:', err);
@@ -101,8 +92,10 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
 
     if (user && friend) {
       user.friends.push(friend._id)
+      friend.friends.push(user._id)
       user.friendsRequest = user.friendsRequest.filter(_id => _id.toString() !== friendId)
       user.save()
+      friend.save()
       res.status(200).json({ message: "solicitud aceptada" })
     }
   } catch (error) {

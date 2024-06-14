@@ -4,11 +4,13 @@ import user from './src/routes/users.router'
 import post from './src/routes/post.router'
 import comment from './src/routes/comment.router'
 import friends from './src/routes/friends.router'
+import messages from './src/routes/message.router'
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import initializePassport from './src/config/passport.config'
 import { Server } from 'socket.io'
 import http from 'http'
+import messageModel from './src/models/message.model'
 
 require('dotenv').config()
 const cors = require('cors')
@@ -42,7 +44,7 @@ app.use('/thefucasocial',user)
 app.use('/thefucasocial', post)
 app.use('/thefucasocial', comment)
 app.use('/thefucasocial', friends)
-
+app.use('/thefucasocial', messages)
 
 const mongo_uri = process.env.MONGO_URI
 export const users = new Map()
@@ -69,7 +71,7 @@ if(mongo_uri){
             if (userId) {
                 users.set(userId, socket.id);
                 console.log(`Usuario ${userId} registrado con socket ID: ${socket.id}`);
-                console.log(users); // Mostrar el mapa de usuarios después de registrar
+                console.log(users); 
             } else {
                 console.log('User ID no proporcionado para el registro');
             }
@@ -95,6 +97,19 @@ if(mongo_uri){
                     console.log(`Usuario ${userId} eliminado del registro de usuarios.`);
                 }
             });
+        });
+
+        socket.on('sendMessage', async (data) => {
+            const { userId, userName, friendId, message } = data;
+            try {
+                const createMessage = await messageModel.create({ userId, userName, message, friendId });
+                const friendSocketId = users.get(friendId);
+                if (friendSocketId) {
+                    io.to(friendSocketId).emit('newMessage', createMessage);
+                }
+            } catch (err) {
+                console.error('Error creando mensaje:', err);
+            }
         });
     })
     
