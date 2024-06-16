@@ -8,7 +8,17 @@ const userSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true, unique: true },
     email: String,
     password: { type: String, required: true },
-    createdAt: Date
+    createdAt: Date,
+    friends: [{
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+    friendsRequest: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ]
 });
 const userModel = mongoose_1.default.model("User", userSchema);
 exports.default = userModel;

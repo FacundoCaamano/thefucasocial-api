@@ -75,12 +75,12 @@ const initializePassport = () => {
     }, (jwt_payload, done) => __awaiter(void 0, void 0, void 0, function* () {
         done(null, jwt_payload);
     })));
-    passport_1.default.serializeUser((user, done) => {
-        done(null, user._id);
-    });
-    passport_1.default.deserializeUser((id, done) => __awaiter(void 0, void 0, void 0, function* () {
-        const user = yield user_model_1.default.findById(id);
-        done(null, user);
-    }));
+    // passport.serializeUser((user:any, done)=>{
+    //   done(null, user._id)
+    // })
+    // passport.deserializeUser(async (id,done)=>{
+    //   const user = await userModel.findById(id)
+    //   done(null, user)
+    // })
 };
 exports.default = initializePassport;

@@ -30,10 +30,21 @@ const commentSchema = new mongoose_1.default.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'user',
     },
+    authorName: String,
     post: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'post',
     },
+    likes: [{
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
+    dislikes: [{
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
     createAt: Date
 });
 const commentModel = mongoose_1.default.model('Comment', commentSchema);

@@ -20,7 +20,7 @@ function createToken(usuario) {
     const payload = {
         usuario
     };
-    const token = jsonwebtoken_1.default.sign(payload, process.env.SECRET_KEY, { expiresIn: '7d' });
+    const token = jsonwebtoken_1.default.sign(payload, process.env.SECRET_KEY);
     return token;
 }
 exports.createToken = createToken;
@@ -49,7 +49,7 @@ const passportCall = (strategy) => {
             if (err)
                 return next(err);
             if (!user)
-                return next();
+                return res.status(401).send('Usuario no autenticado');
             req.user = user;
             next();
         })(req, res, next);

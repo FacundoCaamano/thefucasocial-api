@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dislike = exports.like = exports.deletePost = exports.createPost = exports.getPostsById = exports.getPost = void 0;
+exports.dislike = exports.like = exports.deletePost = exports.createPost = exports.getPostsById = exports.editPost = exports.getPost = void 0;
 const post_model_1 = __importDefault(require("../models/post.model"));
 const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -24,6 +24,31 @@ const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getPost = getPost;
+const editPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const postId = req.params.postId;
+        const user = req.params.userId;
+        const content = req.body.content;
+        const post = yield post_model_1.default.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+        if (post.authorId.toString() !== user) {
+            return res.status(403).json({ error: "User not authorized to edit this post" });
+        }
+        if (post) {
+            post.content = content;
+            post.edit = true;
+            yield post.save();
+            return res.status(200).json(post);
+        }
+    }
+    catch (error) {
+        console.error("Error editing post:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+exports.editPost = editPost;
 const getPostsById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.params.userId;
@@ -90,7 +115,7 @@ const like = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             post.dislikes.pull(userId);
         }
         yield post.save();
-        res.json({ message: 'Like actualizado' });
+        res.json(post);
     }
     catch (error) {
         console.log({ message: 'Error al actualizar like', error });
@@ -116,8 +141,8 @@ const dislike = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (post.likes.includes(userId)) {
             post.likes.pull(userId);
         }
-        yield post.save();
-        res.json({ message: 'Like actualizado' });
+        const postsEdited = yield post.save();
+        res.json(postsEdited);
     }
     catch (error) {
         console.log({ message: 'Error al actualizar like', error });

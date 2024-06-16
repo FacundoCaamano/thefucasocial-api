@@ -42,7 +42,11 @@ const postSchema = new mongoose_1.default.Schema({
     dislikes: [{
             type: mongoose_1.Schema.Types.ObjectId,
             ref: 'User'
-        }]
+        }],
+    edit: {
+        type: Boolean,
+        default: false
+    }
 });
 const postModel = mongoose_1.default.model('Post', postSchema);
 exports.default = postModel;
