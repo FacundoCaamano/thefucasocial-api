@@ -15,9 +15,9 @@ export const createComment = async (req: Request, res: Response) => {
         createAt: new Date()
     }
 
-    await commentModel.create(newComment)
+    const comment = await commentModel.create(newComment)
 
-    res.json({ message: 'creado' })
+    res.json(comment)
 
 }
 
@@ -25,7 +25,7 @@ export const getCommentByPostId = async (req: Request, res: Response) => {
     try {
 
         const postId = req.params._id
-        const comments = await commentModel.find({ post: postId })
+        const comments:any = await commentModel.find({ post: postId }).sort({createAt:-1})
 
         if (!comments) {
             res.json({ message: 'no se encontraron comentarios' })
@@ -58,12 +58,11 @@ export const likeComment = async (req: Request, res: Response) => {
             comment.dislikes.pull(userLike)
          }
         await comment.save()
-        res.status(200)
+        res.status(200).json(comment)
     }catch(err){
         console.log(err);
         
     }
-    res.status(200).json({ message: 'correcto' })
    
 }
 export const dislikeComment = async (req: Request, res: Response) => {
@@ -84,8 +83,23 @@ export const dislikeComment = async (req: Request, res: Response) => {
             comment.likes.pull(userDislike)
         }
          await comment.save()
-        res.status(200).json({ message: 'correcto' })
+        res.status(200).json(comment)
     } catch (err) {
         res.status(500).json({ message: 'error en el servidor', error: err })
+    }
+}
+
+export const deleteComment = async (req:Request,res:Response)=>{
+    const commentId = req.params.commentId
+    const userAuthorId = req.params.userAuthorId
+    
+    try{
+        const comment = await commentModel.findById(commentId)
+        if(comment?.author == userAuthorId){
+            await commentModel.deleteOne({_id: comment._id})
+            res.status(200).json({message:'comentario eliminado', comment})
+        }
+    }catch{
+        console.log('err');
     }
 }
