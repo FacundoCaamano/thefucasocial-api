@@ -29,14 +29,12 @@ const message_model_1 = __importDefault(require("./src/models/message.model"));
 require('dotenv').config();
 const cors = require('cors');
 const corsOptions = {
-    origin: 'http://localhost:4200',
     credentials: true
 };
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 exports.io = new socket_io_1.Server(server, {
     cors: {
-        origin: "http://localhost:4200",
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -113,3 +111,4 @@ exports.io.on('connection', (socket) => {
 mongoose_1.default.connection.on('error', (err) => {
     console.error('Mongoose connection error:', err);
 });
+exports.default = app;

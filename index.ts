@@ -16,7 +16,6 @@ require('dotenv').config()
 const cors = require('cors')
 
 const corsOptions = {
-    origin: 'http://localhost:4200',
     credentials: true
 };
 
@@ -26,7 +25,6 @@ const server = http.createServer(app)
 
 export const io = new Server(server,{
     cors: {
-        origin: "http://localhost:4200",
         methods: ["GET", "POST"],
         credentials: true
       }
@@ -117,3 +115,5 @@ mongoose.connection.on('error', (err) => {
     console.error('Mongoose connection error:', err);
   
   });
+
+ export default app;
