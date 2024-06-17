@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dislikeComment = exports.likeComment = exports.getCommentByPostId = exports.createComment = void 0;
+exports.deleteComment = exports.dislikeComment = exports.likeComment = exports.getCommentByPostId = exports.createComment = void 0;
 const comment_model_1 = __importDefault(require("../models/comment.model"));
 const createComment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const content = req.body.content;
@@ -26,14 +26,14 @@ const createComment = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         authorName,
         createAt: new Date()
     };
-    yield comment_model_1.default.create(newComment);
-    res.json({ message: 'creado' });
+    const comment = yield comment_model_1.default.create(newComment);
+    res.json(comment);
 });
 exports.createComment = createComment;
 const getCommentByPostId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const postId = req.params._id;
-        const comments = yield comment_model_1.default.find({ post: postId });
+        const comments = yield comment_model_1.default.find({ post: postId }).sort({ createAt: -1 });
         if (!comments) {
             res.json({ message: 'no se encontraron comentarios' });
         }
@@ -59,12 +59,11 @@ const likeComment = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             comment.dislikes.pull(userLike);
         }
         yield comment.save();
-        res.status(200);
+        res.status(200).json(comment);
     }
     catch (err) {
         console.log(err);
     }
-    res.status(200).json({ message: 'correcto' });
 });
 exports.likeComment = likeComment;
 const dislikeComment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -82,10 +81,25 @@ const dislikeComment = (req, res) => __awaiter(void 0, void 0, void 0, function*
             comment.likes.pull(userDislike);
         }
         yield comment.save();
-        res.status(200).json({ message: 'correcto' });
+        res.status(200).json(comment);
     }
     catch (err) {
         res.status(500).json({ message: 'error en el servidor', error: err });
     }
 });
 exports.dislikeComment = dislikeComment;
+const deleteComment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const commentId = req.params.commentId;
+    const userAuthorId = req.params.userAuthorId;
+    try {
+        const comment = yield comment_model_1.default.findById(commentId);
+        if ((comment === null || comment === void 0 ? void 0 : comment.author) == userAuthorId) {
+            yield comment_model_1.default.deleteOne({ _id: comment._id });
+            res.status(200).json({ message: 'comentario eliminado', comment });
+        }
+    }
+    catch (_b) {
+        console.log('err');
+    }
+});
+exports.deleteComment = deleteComment;
