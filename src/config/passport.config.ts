@@ -65,19 +65,20 @@ passport.use('login', new LocalStrategy({
 
 passport.use('jwt', new JWTStrategy({
   jwtFromRequest: ExtractJwt.fromExtractors([extractCookie]),
-  secretOrKey: process.env.SECRET_KEY as string 
-},async(jwt_payload, done)=>{
-  done(null, jwt_payload)
-}))
+  secretOrKey: process.env.SECRET_KEY as string
+}, async (jwt_payload, done) => {
+  try {
+    const user = await userModel.findById(jwt_payload.usuario._id);
+    if (!user) {  
+      return done(null, false);
+    }
+    return done(null, user);
+  } catch (error) {
+    return done(error, false);
+  }
+}));
 
-// passport.serializeUser((user:any, done)=>{
-//   done(null, user._id)
-// })
 
-// passport.deserializeUser(async (id,done)=>{
-//   const user = await userModel.findById(id)
-//   done(null, user)
-// })
  
 }
 export default initializePassport

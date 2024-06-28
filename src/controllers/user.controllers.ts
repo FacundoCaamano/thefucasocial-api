@@ -29,8 +29,12 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         const token = createToken(user);
   
       
-      res.cookie('token', token ,{httpOnly:true});
-        return res.status(200).json( user);
+      res.cookie('token', token ,{
+        httpOnly:true,
+        sameSite:'none',
+        secure: true,
+      });
+        return res.status(200).json(user);
       })(req, res, next);
   };
 

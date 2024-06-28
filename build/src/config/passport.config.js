@@ -73,14 +73,16 @@ const initializePassport = () => {
         jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([jwt_1.extractCookie]),
         secretOrKey: process.env.SECRET_KEY
     }, (jwt_payload, done) => __awaiter(void 0, void 0, void 0, function* () {
-        done(null, jwt_payload);
+        try {
+            const user = yield user_model_1.default.findById(jwt_payload.usuario._id);
+            if (!user) {
+                return done(null, false);
+            }
+            return done(null, user);
+        }
+        catch (error) {
+            return done(error, false);
+        }
     })));
-    // passport.serializeUser((user:any, done)=>{
-    //   done(null, user._id)
-    // })
-    // passport.deserializeUser(async (id,done)=>{
-    //   const user = await userModel.findById(id)
-    //   done(null, user)
-    // })
 };
 exports.default = initializePassport;

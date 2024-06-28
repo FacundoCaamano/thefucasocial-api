@@ -1,6 +1,7 @@
 import userModel from "../models/user.model"
 import { Request, Response } from "express"
 import mongoose from "mongoose"
+
 export const getFriends = async (req: Request, res: Response) => {
   const userId = req.params._id
   const user = await userModel.findById(userId)
@@ -120,15 +121,24 @@ export const rejectFriendRequest = async (req: Request, res: Response) => {
 }
 
 export const deleteFriend = async (req: Request, res: Response) => {
+
   const friendId = req.params.friendId
   const userId = req.params.userId
+  
   try {
+
     const user = await userModel.findById(userId).populate('friends', '_id name email')
-   
+    const friend = await userModel.findById(friendId).populate('friends', '_id name email')
+
     if (!user) res.status(404).json({ message: 'usuario no encontrado' })
+
     if (user) {
       user.friends = user.friends.filter((f:any) => f._id.toString() !== friendId)
       user.save()
+      if(friend)  {
+        friend.friends = friend?.friends.filter((f:any)=> f._id.toString() !== userId)
+        friend?.save()
+      }
       res.send(user.friends)
     }
 

@@ -29,21 +29,29 @@ const message_model_1 = __importDefault(require("./src/models/message.model"));
 require('dotenv').config();
 const cors = require('cors');
 const corsOptions = {
-    credentials: true
+    origin: 'https://thefucasocial.vercel.app',
+    credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
 };
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 exports.io = new socket_io_1.Server(server, {
     cors: {
+        origin: "https://thefucasocial.vercel.app",
         methods: ["GET", "POST"],
         credentials: true
     }
 });
 app.use(cors(corsOptions));
-app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
 app.use(passport_1.default.initialize());
 (0, passport_config_1.default)();
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://thefucasocial.vercel.app');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
 app.use('/thefucasocial', users_router_1.default);
 app.use('/thefucasocial', post_router_1.default);
 app.use('/thefucasocial', comment_router_1.default);

@@ -133,11 +133,16 @@ const deleteFriend = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     const userId = req.params.userId;
     try {
         const user = yield user_model_1.default.findById(userId).populate('friends', '_id name email');
+        const friend = yield user_model_1.default.findById(friendId).populate('friends', '_id name email');
         if (!user)
             res.status(404).json({ message: 'usuario no encontrado' });
         if (user) {
             user.friends = user.friends.filter((f) => f._id.toString() !== friendId);
             user.save();
+            if (friend) {
+                friend.friends = friend === null || friend === void 0 ? void 0 : friend.friends.filter((f) => f._id.toString() !== userId);
+                friend === null || friend === void 0 ? void 0 : friend.save();
+            }
             res.send(user.friends);
         }
     }

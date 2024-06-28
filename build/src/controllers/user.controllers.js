@@ -37,7 +37,11 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             return res.status(401).json({ error: 'Credenciales incorrectas' });
         }
         const token = (0, jwt_1.createToken)(user);
-        res.cookie('token', token, { httpOnly: true });
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+        });
         return res.status(200).json(user);
     })(req, res, next);
 });
