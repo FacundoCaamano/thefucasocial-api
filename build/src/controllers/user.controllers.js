@@ -60,7 +60,11 @@ const profile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.profile = profile;
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie('token');
+    res.clearCookie('token', {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true, // Solo si estás en HTTPS
+    });
     res.json({ message: 'deslogueado' });
 });
 exports.logout = logout;

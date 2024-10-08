@@ -51,7 +51,12 @@ export const profile = async(req:Request,res:Response)=>{
 
 
 export const logout = async(req:Request,res:Response)=>{
-    res.clearCookie('token')
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true, // Solo si estás en HTTPS
+   
+});
     res.json({message:'deslogueado'})    
 }
 
